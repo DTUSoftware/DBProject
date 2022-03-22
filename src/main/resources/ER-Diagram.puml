@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/ie-diagram
+
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity User {
+  *user_id : number <<generated>>
+  --
+  *name : text
+  description : text
+}
+
+entity Event {
+  *event_id : number <<generated>>
+  --
+
+}
+
+entity Contender {
+  *contender_id : number <<generated>>
+  --
+  * user_id : number <<FK>>
+  * event_id : number <<FK>>
+  time : number
+}
+
+User ||..o{ Event
+User |o..o{ Contender
+
+@enduml
