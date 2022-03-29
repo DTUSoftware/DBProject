@@ -38,7 +38,7 @@ entity Contender {
   * user_email : text <<FK>>
   time : number
 }
-Contender }o..|| Event
+Contender }o...|| Event
 Contender }o..|| User
 
 
