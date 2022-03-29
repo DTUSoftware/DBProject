@@ -21,6 +21,7 @@ entity Event {
   *event_id : number <<generated>>
   --
   *date : date
+  *union_id : text <<FK>>
   *event_type_id : number <<FK>>
 }
 
@@ -42,7 +43,7 @@ Contender }o...|| Event
 Contender }o..|| User
 
 
-entity "Age Group" {
+entity AgeGroup {
     *age_group_id : number <<generated>>
     --
     *lower_age : number
