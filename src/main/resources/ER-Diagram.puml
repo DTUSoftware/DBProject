@@ -8,27 +8,61 @@ hide circle
 skinparam linetype ortho
 
 entity User {
-  *user_id : number <<generated>>
+  *user_email : text
   --
   *name : text
-  description : text
+  *address : text
+  *email : text
+  *birthdate : date
+  gender : boolean
 }
 
 entity Event {
   *event_id : number <<generated>>
   --
-
+  *date : date
+  *event_type_id : number <<FK>>
 }
+
+entity EventType {
+  *event_type_id : number <<generated>>
+  --
+  *description : text
+}
+Event }o..|| EventType
 
 entity Contender {
   *contender_id : number <<generated>>
-  --
-  * user_id : number <<FK>>
   * event_id : number <<FK>>
+  --
+  * user_email : text <<FK>>
   time : number
 }
+Contender }o..|| Event
+Contender }o..|| User
 
-User ||..o{ Event
-User |o..o{ Contender
+
+entity "Age Group" {
+    *age_group_id : number <<generated>>
+    --
+    *lower_age : number
+    *higher_age : number
+}
+
+entity SportsUnion {
+    *union_id : text
+    --
+    *name : text
+    address : text
+    email : text
+    phone_number : text
+}
+SportsUnion ||..o{ Event
+
+
+
+'User ||..o{ Event
+'User |o..o{ Contender
+
 
 @enduml
