@@ -1,4 +1,4 @@
-package dk.dtu;
+package dk.dtu.dbproject;
 
 import java.io.IOException;
 import java.util.List;

@@ -7,9 +7,8 @@
  *
  */
 
-package dk.dtu;
+package dk.dtu.dbproject;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PersonOgTilmelding {

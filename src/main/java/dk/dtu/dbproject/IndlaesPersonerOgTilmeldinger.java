@@ -8,7 +8,7 @@
  *
  */
 
-package dk.dtu;
+package dk.dtu.dbproject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,7 +33,8 @@ public class IndlaesPersonerOgTilmeldinger {
 	 * Denne metode indlæser en datafil med personer og tilmeldinder og returnerer en liste med PersonOgTilmelding objekter der repræsenterer indholdet i filen.
 	 * @param filename filnavn på den fil der skal indlæses (inkl. sti hvis nødvendigt)
 	 * @return List indeholdende PersonOgTilmelding objekter
-	 * @throws FileNotFoundException, IOException
+	 * @throws FileNotFoundException
+	 * @throws IOException
 	 */
 	public List<PersonOgTilmelding> indlaesPersonerOgTilmeldinger(String filename) throws FileNotFoundException, IOException {
 		List<PersonOgTilmelding> poaList = new ArrayList<PersonOgTilmelding>();
