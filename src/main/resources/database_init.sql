@@ -3,7 +3,8 @@ USE tidsmaskinen;
 
 CREATE TABLE IF NOT EXISTS user (
     email varchar(254) PRIMARY KEY,
-    name varchar(255) NOT NULL,
+    firstname varchar(255) NOT NULL,
+    lastname varchar(255) NOT NULL,
     address varchar(255) NOT NULL,
     birthdate date NOT NULL,
     gender boolean
@@ -54,4 +55,3 @@ CREATE TABLE IF NOT EXISTS contender (
     FOREIGN KEY (event_id) REFERENCES event(ID),
     FOREIGN KEY (user_email) REFERENCES user(email)
 );
-

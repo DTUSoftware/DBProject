@@ -5,10 +5,7 @@ import com.google.common.io.Resources;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class Database {
     private Connection conn;
@@ -95,5 +92,31 @@ public class Database {
                 executeUpdate(sql[i]);
             }
         }
+    }
+
+    // ============ Queries ============ //
+
+    public Person getPerson(String email) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from user WHERE email == ?");
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                boolean gender_bool = rs.getBoolean(rs.getString("gender"));
+                String gender = rs.wasNull() ? "Other" : (gender_bool ? "Male" : "Female");
+
+                Person person = new Person(
+                        rs.getString("email"),
+                        rs.getString("firstname"), rs.getString("lastname"),
+                        gender, rs.getDate("birthdate")
+                );
+                return person;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
