@@ -12,7 +12,6 @@ entity User {
   --
   *name : text
   *address : text
-  *email : text
   *birthdate : date
   gender : boolean
 }
@@ -20,7 +19,7 @@ entity User {
 entity Event {
   *event_id : number <<generated>>
   --
-  *date : date
+  *date : datetime
   *union_id : text <<FK>>
   *event_type_id : number <<FK>>
 }
@@ -34,8 +33,8 @@ Event }o..|| EventType
 
 entity Contender {
   *contender_id : number <<generated>>
-  * event_id : number <<FK>>
   --
+    * event_id : number <<FK>>
   * user_email : text <<FK>>
   time : number
 }
@@ -47,8 +46,17 @@ entity AgeGroup {
     *age_group_id : number <<generated>>
     --
     *lower_age : number
-    *higher_age : number
+    *upper_age : number
 }
+
+entity EventType_AgeGroup {
+    * age_group_id : number <<FK>>
+    * event_type_id : number <<FK>>
+    --
+    gender : boolean
+}
+EventType ||..|{ EventType_AgeGroup
+EventType_AgeGroup }o..|| AgeGroup
 
 entity SportsUnion {
     *union_id : text
