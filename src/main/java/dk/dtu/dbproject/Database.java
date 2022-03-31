@@ -6,6 +6,11 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.Calendar;
 
 public class Database {
     private Connection conn;
@@ -13,26 +18,24 @@ public class Database {
     /**
      * Creates a new database connection.
      *
-     * @param host          The address of the server
-     * @param port          The port of the server
-     * @param username      The MySQL username
-     * @param password      The MySQL password
+     * @param host     The address of the server
+     * @param port     The port of the server
+     * @param username The MySQL username
+     * @param password The MySQL password
      * @throws SQLException
      */
     public Database(String host, int port, String username, String password) {
         try {
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Could not register MySQL driver...");
             e.printStackTrace();
             return;
         }
 
         try {
-            this.conn = DriverManager.getConnection("jdbc:mysql://"+host+":"+port, username, password);
-        }
-        catch (SQLException e) {
+            this.conn = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port, username, password);
+        } catch (SQLException e) {
             System.out.println("Could not connect to database...");
             e.printStackTrace();
             return;
@@ -57,8 +60,7 @@ public class Database {
         Statement stmt;
         try {
             stmt = this.conn.createStatement();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Could not create statement...");
             e.printStackTrace();
             return;
@@ -66,8 +68,7 @@ public class Database {
 
         try {
             stmt.executeUpdate(sql);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Could not execute statement...");
             e.printStackTrace();
             return;
@@ -80,8 +81,7 @@ public class Database {
         String sql_script;
         try {
             sql_script = String.join(" ", Files.readAllLines(new File(Resources.class.getClassLoader().getResource("database_init.sql").getPath()).toPath(), StandardCharsets.UTF_8)).replace("    ", "");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("fuck");
             return;
         }
@@ -107,14 +107,12 @@ public class Database {
             Boolean gender = user.getGender();
             if (gender == null) {
                 pstmt.setNull(6, Types.BOOLEAN);
-            }
-            else {
+            } else {
                 pstmt.setBoolean(6, gender);
             }
             int res = pstmt.executeUpdate();
             return res != 0;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -140,8 +138,7 @@ public class Database {
                 );
                 return user;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -170,8 +167,7 @@ public class Database {
                 i++;
             }
             return contenders;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -193,8 +189,7 @@ public class Database {
                 );
                 return event;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -216,8 +211,7 @@ public class Database {
                 );
                 return union;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -228,14 +222,13 @@ public class Database {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (unique_event_id, event_id, user_email) VALUES (?, ?, ?)");
 
-            pstmt.setInt(1, getEventContenders(contender.getEvent()).length+1);
+            pstmt.setInt(1, getEventContenders(contender.getEvent()).length + 1);
             pstmt.setInt(2, contender.getEvent().getEventID());
             pstmt.setString(3, contender.getUser().getEmail());
 
             int res = pstmt.executeUpdate();
             return res != 0;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -254,8 +247,7 @@ public class Database {
 
             int res = pstmt.executeUpdate();
             return res != 0;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -270,8 +262,7 @@ public class Database {
 
             int res = pstmt.executeUpdate();
             return res != 0;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -292,18 +283,36 @@ public class Database {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     event.setEventID(generatedKeys.getInt(1));
-                }
-                else {
+                } else {
                     System.out.println("Could not get generated ID!");
                 }
             }
 
             return res != 0;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return false;
     }
+
+    public AgeGroup getAgeGroup(Contender contender) {
+        java.util.Date date = new java.util.Date();
+        java.util.Date birthDate = contender.getUser().getBirthdate();
+        LocalDate birthDay = Instant.ofEpochMilli(birthDate.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        LocalDate currentDay = Instant.ofEpochMilli(date.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        int age = Period.between(birthDay, currentDay).getYears();
+
+        //reparedStatement pstmt = this.conn.prepareStatement("");
+
+
+        AgeGroup ag = new AgeGroup(0, 10, 50);
+
+        return null;
+    }
+
 }

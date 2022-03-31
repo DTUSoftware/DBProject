@@ -10,4 +10,25 @@ public class AgeGroup {
         this.lowerAge = lowerAge;
         this.upperAge = upperAge;
     }
+
+
+    public int getAgeGroupID() {
+        return ageGroupID;
+    }
+
+    public int getLowerAge() {
+        return lowerAge;
+    }
+
+    public int getUpperAge() {
+        return upperAge;
+    }
+
+    public String toString() {
+        return "AgeGroup{" +
+                "ageGroupID=" + ageGroupID +
+                ", lowerAge=" + lowerAge +
+                ", upperAge=" + upperAge +
+                '}';
+    }
 }
