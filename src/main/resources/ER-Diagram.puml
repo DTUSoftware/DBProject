@@ -17,25 +17,23 @@ entity User {
 }
 
 entity Event {
-  *event_id : number <<generated>>
-  --
   *date : datetime
   *union_id : text <<FK>>
-  *event_type_id : number <<FK>>
+  *event_type_id : text <<FK>>
 }
 
 entity EventType {
-  *event_type_id : number <<generated>>
-  --
-  *description : text
+  *event_type_id : text
 }
 Event }o..|| EventType
 
 entity Contender {
-  *contender_id : number <<generated>>
-  --
-    * event_id : number <<FK>>
   * user_email : text <<FK>>
+  * union_id : text <<FK>>
+  * event_type_id : text <<FK>>
+  * date : datetime <<FK>>
+  --
+  *contender_id : number <<generated>>
   time : number
 }
 Contender }o...|| Event
@@ -43,15 +41,13 @@ Contender }o..|| User
 
 
 entity AgeGroup {
-    *age_group_id : number <<generated>>
-    --
     *lower_age : number
     *upper_age : number
 }
 
 entity EventType_AgeGroup {
     * age_group_id : number <<FK>>
-    * event_type_id : number <<FK>>
+    * event_type_id : text <<FK>>
     --
     gender : boolean
 }
