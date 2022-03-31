@@ -96,7 +96,7 @@ public class Database {
 
     // ============ Queries ============ //
 
-    public Person getPerson(String email) {
+    public User getPerson(String email) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from user WHERE email == ?");
             pstmt.setString(1, email);
@@ -105,12 +105,12 @@ public class Database {
                 boolean gender_bool = rs.getBoolean(rs.getString("gender"));
                 String gender = rs.wasNull() ? "Other" : (gender_bool ? "Male" : "Female");
 
-                Person person = new Person(
+                User user = new User(
                         rs.getString("email"),
                         rs.getString("firstname"), rs.getString("lastname"),
                         gender, rs.getDate("birthdate")
                 );
-                return person;
+                return user;
             }
         }
         catch (SQLException e) {

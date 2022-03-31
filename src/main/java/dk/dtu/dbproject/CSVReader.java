@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
-public class IndlaesPersonerOgTilmeldinger {
+public class CSVReader {
 
 	public static final String SEMICOLON_DELIMITER = ";";
 	public static final String COMMA_DELIMITER = ",";
@@ -36,8 +36,8 @@ public class IndlaesPersonerOgTilmeldinger {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public List<PersonOgTilmelding> indlaesPersonerOgTilmeldinger(String filename) throws FileNotFoundException, IOException {
-		List<PersonOgTilmelding> poaList = new ArrayList<PersonOgTilmelding>();
+	public List<Signup> readSignups(String filename) throws FileNotFoundException, IOException {
+		List<Signup> poaList = new ArrayList<Signup>();
 		
 		BufferedReader in = null;
 		try {
@@ -77,7 +77,7 @@ public class IndlaesPersonerOgTilmeldinger {
 								throw new NumberFormatException("Ugyldig værdi (" + values.get(7) + ") for event dato på linie " + lineNbr);
 							}
 
-						PersonOgTilmelding poa = new PersonOgTilmelding(email, fornavn, efternavn, koen, foedselsdato, foreningsId, eventTypeId, eventDato);
+						Signup poa = new Signup(email, fornavn, efternavn, koen, foedselsdato, foreningsId, eventTypeId, eventDato);
 						poaList.add(poa);
 					} else
 						throw new IOException("Ugyldigt antal værdier på linie " +lineNbr +". Forventede " +NUMBER_OF_FIELDS_EXPECTED +" værdier, læste " +values.size());

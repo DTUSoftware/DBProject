@@ -3,7 +3,6 @@ package dk.dtu.dbproject;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -11,13 +10,13 @@ import java.util.List;
  */
 public class Main {
     public static void main(String[] args) {
-        IndlaesPersonerOgTilmeldinger laeser = new IndlaesPersonerOgTilmeldinger();
+        CSVReader reader = new CSVReader();
         try {
-            List<PersonOgTilmelding> personerOgTilmeldinger = laeser.indlaesPersonerOgTilmeldinger(Resources.class.getClassLoader().getResource("tilmeldinger.csv").getPath());
-            for(PersonOgTilmelding personOgTilmelding : personerOgTilmeldinger) {
-                System.out.print("Person: " +personOgTilmelding.getPerson());
-                if(personOgTilmelding.getTilmelding() != null)
-                    System.out.println("\tTilmelding: " +personOgTilmelding.getTilmelding());
+            List<Signup> signups = reader.readSignups(Resources.class.getClassLoader().getResource("tilmeldinger.csv").getPath());
+            for(Signup signup : signups) {
+                System.out.print("Person: " + signup.getUser());
+                if(signup.getContender() != null)
+                    System.out.println("\tTilmelding: " + signup.getContender());
                 else
                     System.out.println("\t Ingen tilhørende tilmelding");
             }
