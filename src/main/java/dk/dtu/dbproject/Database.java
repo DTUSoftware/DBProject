@@ -112,7 +112,7 @@ public class Database {
                 pstmt.setBoolean(6, gender);
             }
             int res = pstmt.executeUpdate();
-            return true;
+            return res != 0;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -148,14 +148,104 @@ public class Database {
         return null;
     }
 
+    public Contender[] getEventContenders(Event event) {
+        if (event.getEventID() == null) {
+            return null;
+        }
+
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from contender WHERE event_id == ?");
+            pstmt.setInt(1, event.getEventID());
+            ResultSet rs = pstmt.executeQuery();
+            Contender[] contenders = new Contender[rs.getFetchSize()];
+            int i = 0;
+            while (rs.next()) {
+                User user = getUser(rs.getString("user_email"));
+                Event db_event = getEvent(rs.getInt("event_id"));
+
+                Contender contender = new Contender(
+                        user, db_event
+                );
+                contenders[i] = contender;
+                i++;
+            }
+            return contenders;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Event getEvent(int eventID) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE ID == ?");
+            pstmt.setInt(1, eventID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+
+                Event event = new Event(
+                        rs.getInt("ID"),
+                        rs.getDate("date"),
+                        getUnion(rs.getString("union_id")),
+                        new EventType(rs.getString("event_type_id"))
+                );
+                return event;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Union getUnion(String unionID) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from sports_union WHERE ID == ?");
+            pstmt.setString(1, unionID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                Union union = new Union(
+                        rs.getString("ID"),
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("address"),
+                        rs.getString("phone_number")
+                );
+                return union;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public boolean addContender(Contender contender) {
-        return true;
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (unique_event_id, event_id, user_email) VALUES (?, ?, ?)");
+
+            pstmt.setInt(1, getEventContenders(contender.getEvent()).length+1);
+            pstmt.setInt(2, contender.getEvent().getEventID());
+            pstmt.setString(3, contender.getUser().getEmail());
+
+            int res = pstmt.executeUpdate();
+            return res != 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public boolean addUnion(Union union) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO union (ID, name, email, address, phone_number) VALUES (?, ?, ?, ?, ?)");
-            
+
             pstmt.setString(1, union.getUnionID());
             pstmt.setString(2, union.getName());
             pstmt.setString(3, union.getEmail());
@@ -163,7 +253,7 @@ public class Database {
             pstmt.setString(5, union.getPhoneNumber());
 
             int res = pstmt.executeUpdate();
-            return true;
+            return res != 0;
         }
         catch (SQLException e) {
             e.printStackTrace();
@@ -173,10 +263,47 @@ public class Database {
     }
 
     public boolean addEventType(EventType eventType) {
-        return true;
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event_type (ID) VALUES (?)");
+
+            pstmt.setString(1, eventType.getEventTypeID());
+
+            int res = pstmt.executeUpdate();
+            return res != 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public boolean addEvent(Event event) {
-        return true;
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event (date, union_id, event_type_id) VALUES (?, ?, ?)");
+
+            pstmt.setDate(1, (java.sql.Date) event.getEventDate());
+            pstmt.setString(2, event.getUnion().getUnionID());
+            pstmt.setString(3, event.getEventType().getEventTypeID());
+
+            int res = pstmt.executeUpdate();
+
+            if (res != 0) {
+                ResultSet generatedKeys = pstmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    event.setEventID(generatedKeys.getInt(1));
+                }
+                else {
+                    System.out.println("Could not get generated ID!");
+                }
+            }
+
+            return res != 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

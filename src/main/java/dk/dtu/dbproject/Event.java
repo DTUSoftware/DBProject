@@ -19,6 +19,10 @@ public class Event {
         return eventID;
     }
 
+    public void setEventID(int eventID) {
+        this.eventID = eventID;
+    }
+
     public Date getEventDate() {
         return eventDate;
     }

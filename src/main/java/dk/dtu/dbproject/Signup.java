@@ -12,21 +12,26 @@ package dk.dtu.dbproject;
 import java.util.Date;
 
 public class Signup {
+	private final User user;
 	private final Contender contender;
 
 	public Signup(String email, String firstname, String lastname, Boolean gender, Date birthdate, String unionID, String eventTypeId, Date eventDate) {
-		User user = new User(email, firstname, lastname, "DTU", gender, birthdate);
+		user = new User(email, firstname, lastname, "DTU", gender, birthdate);
 		if(unionID != null || eventTypeId != null || eventDate != null) {
 			Union union = new Union(unionID, unionID, "help@" + unionID + ".dk", unionID + "vej", "112");
 			Event event = new Event(null, eventDate, union, new EventType(eventTypeId));
-			contender = new Contender(user, event);
+			this.contender = new Contender(user, event);
 		}
-		else
-			contender = null;
+		else {
+			this.contender = null;
+		}
 	}
 
 	public User getUser() {
-		return contender.getUser();
+		if (this.contender != null) {
+			return contender.getUser();
+		}
+		return user;
 	}
 
 	public Event getEvent() {

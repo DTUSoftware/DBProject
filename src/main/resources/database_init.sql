@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS event (
 
 CREATE TABLE IF NOT EXISTS contender (
     ID INT AUTO_INCREMENT PRIMARY KEY,
+    unique_event_id INT NOT NULL,
     event_id INT NOT NULL,
     user_email VARCHAR(254) NOT NULL,
     time INT,
