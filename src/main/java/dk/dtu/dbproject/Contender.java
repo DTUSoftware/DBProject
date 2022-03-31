@@ -2,6 +2,7 @@ package dk.dtu.dbproject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class Contender {
     private int uniqueContenderID;
@@ -48,4 +49,16 @@ public class Contender {
         return event.getUnion().getUnionID() +D + event.getEventType() +D +dateFormatter.format(event.getEventDate());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Contender contender = (Contender) o;
+        return user.equals(contender.user) && event.equals(contender.event);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user, event);
+    }
 }

@@ -3,6 +3,7 @@ package dk.dtu.dbproject;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ import java.util.*;
  */
 public class Main {
     private final static String DATABASE_HOST = "localhost";
-    private final static int DATABASE_PORT = 3306;
+    private final static int DATABASE_PORT = 3307;
     private final static String DATABASE_USERNAME = "root";
     private final static String DATABASE_PASSWORD = "";
 
@@ -58,10 +59,12 @@ public class Main {
         Set<Contender> contenders = new HashSet<>();
         for (Signup signup : signups) {
             users.add(signup.getUser());
-            unions.add(signup.getUnion());
-            eventTypes.add(signup.getEvent().getEventType());
-            events.add(signup.getEvent());
-            contenders.add(signup.getContender());
+            if (signup.getContender() != null) {
+                unions.add(signup.getUnion());
+                eventTypes.add(signup.getEvent().getEventType());
+                events.add(signup.getEvent());
+                contenders.add(signup.getContender());
+            }
         }
 
         // Add everything

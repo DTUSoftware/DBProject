@@ -1,6 +1,7 @@
 package dk.dtu.dbproject;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class Event {
     private Integer eventID;
@@ -33,5 +34,18 @@ public class Event {
 
     public EventType getEventType() {
         return eventType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Event event = (Event) o;
+        return eventDate.equals(event.eventDate) && union.equals(event.union) && eventType.equals(event.eventType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventDate, union, eventType);
     }
 }

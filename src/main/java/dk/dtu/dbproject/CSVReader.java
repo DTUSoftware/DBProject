@@ -81,7 +81,7 @@ public class CSVReader {
 						if (koen.equals("M")) {
 							gender = true;
 						}
-						else if (koen.equals("F")) {
+						else if (koen.equals("K")) {
 							gender = false;
 						}
 

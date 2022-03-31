@@ -2,6 +2,7 @@ package dk.dtu.dbproject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class User {
     private final String email;
@@ -54,6 +55,19 @@ public class User {
         final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd");
 
         return getEmail() +D + getFirstname() +D + getLastname() +D + getGenderString() +D +dateFormatter.format(getBirthdate());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return email.equals(user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(email);
     }
 }
 

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.ArrayList;
 
 public class Database {
     private Connection conn;
@@ -93,24 +94,39 @@ public class Database {
             }
         }
     }
+    
+    private int executePreparedStatementUpdate(PreparedStatement pstmt) {
+        System.out.println("Executing " + pstmt.toString().replace("com.mysql.cj.jdbc.ClientPreparedStatement: ", ""));
+        try {
+            return pstmt.executeUpdate();
+        }
+        catch (SQLIntegrityConstraintViolationException e) {
+            System.out.println("Duplicate entry - " + e);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return 0;
+    }
 
     // ============ Queries ============ //
 
     public boolean addUser(User user) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO user (email, firstname, lastname, address, birthdate, gender) VALUES (?, ?, ?, ?, ?, ?)");
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO user (`email`, `firstname`, `lastname`, `address`, `birthdate`, `gender`) VALUES (?, ?, ?, ?, ?, ?)");
             pstmt.setString(1, user.getEmail());
             pstmt.setString(2, user.getFirstname());
             pstmt.setString(3, user.getLastname());
             pstmt.setString(4, user.getAddress());
-            pstmt.setDate(5, (java.sql.Date) user.getBirthdate());
+            pstmt.setDate(5, new java.sql.Date(user.getBirthdate().getTime()));
             Boolean gender = user.getGender();
             if (gender == null) {
                 pstmt.setNull(6, Types.BOOLEAN);
             } else {
                 pstmt.setBoolean(6, gender);
             }
-            int res = pstmt.executeUpdate();
+            int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -121,11 +137,11 @@ public class Database {
 
     public User getUser(String email) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from user WHERE email == ?");
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from user WHERE `email` = ?");
             pstmt.setString(1, email);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                Boolean gender = rs.getBoolean(rs.getString("gender"));
+                Boolean gender = rs.getBoolean("gender");
                 if (rs.wasNull()) {
                     gender = null;
                 }
@@ -147,15 +163,15 @@ public class Database {
 
     public Contender[] getEventContenders(Event event) {
         if (event.getEventID() == null) {
-            return null;
+            return new Contender[0];
         }
 
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from contender WHERE event_id == ?");
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from contender WHERE `event_id` = ?");
             pstmt.setInt(1, event.getEventID());
+            System.out.println(pstmt.toString());
             ResultSet rs = pstmt.executeQuery();
-            Contender[] contenders = new Contender[rs.getFetchSize()];
-            int i = 0;
+            ArrayList<Contender> contenders = new ArrayList<>();
             while (rs.next()) {
                 User user = getUser(rs.getString("user_email"));
                 Event db_event = getEvent(rs.getInt("event_id"));
@@ -163,11 +179,11 @@ public class Database {
                 Contender contender = new Contender(
                         user, db_event
                 );
-                contenders[i] = contender;
-                i++;
+                contenders.add(contender);
             }
-            return contenders;
-        } catch (SQLException e) {
+            return contenders.toArray(new Contender[0]);
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -176,11 +192,34 @@ public class Database {
 
     private Event getEvent(int eventID) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE ID == ?");
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `ID` = ?");
             pstmt.setInt(1, eventID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
+                Event event = new Event(
+                        rs.getInt("ID"),
+                        rs.getDate("date"),
+                        getUnion(rs.getString("union_id")),
+                        new EventType(rs.getString("event_type_id"))
+                );
+                return event;
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        return null;
+    }
+
+
+    private Event getEvent(String unionID, java.util.Date eventDate) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `union_id` = ? && `date` = ?");
+            pstmt.setString(1, unionID);
+            pstmt.setDate(2, new java.sql.Date(eventDate.getTime()));
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
                 Event event = new Event(
                         rs.getInt("ID"),
                         rs.getDate("date"),
@@ -198,7 +237,7 @@ public class Database {
 
     private Union getUnion(String unionID) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from sports_union WHERE ID == ?");
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from sports_union WHERE `ID` = ?");
             pstmt.setString(1, unionID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -220,13 +259,13 @@ public class Database {
 
     public boolean addContender(Contender contender) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (unique_event_id, event_id, user_email) VALUES (?, ?, ?)");
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (`unique_event_id`, `event_id`, `user_email`) VALUES (?, ?, ?)");
 
             pstmt.setInt(1, getEventContenders(contender.getEvent()).length + 1);
             pstmt.setInt(2, contender.getEvent().getEventID());
             pstmt.setString(3, contender.getUser().getEmail());
 
-            int res = pstmt.executeUpdate();
+            int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -237,7 +276,7 @@ public class Database {
 
     public boolean addUnion(Union union) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO union (ID, name, email, address, phone_number) VALUES (?, ?, ?, ?, ?)");
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO sports_union (`ID`, `name`, `email`, `address`, `phone_number`) VALUES (?, ?, ?, ?, ?)");
 
             pstmt.setString(1, union.getUnionID());
             pstmt.setString(2, union.getName());
@@ -245,7 +284,7 @@ public class Database {
             pstmt.setString(4, union.getAddress());
             pstmt.setString(5, union.getPhoneNumber());
 
-            int res = pstmt.executeUpdate();
+            int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -256,11 +295,11 @@ public class Database {
 
     public boolean addEventType(EventType eventType) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event_type (ID) VALUES (?)");
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event_type (`ID`) VALUES (?)");
 
             pstmt.setString(1, eventType.getEventTypeID());
 
-            int res = pstmt.executeUpdate();
+            int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -271,13 +310,16 @@ public class Database {
 
     public boolean addEvent(Event event) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event (date, union_id, event_type_id) VALUES (?, ?, ?)");
+            PreparedStatement pstmt = this.conn.prepareStatement(
+                    "INSERT INTO event (`date`, `union_id`, `event_type_id`) VALUES (?, ?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
 
-            pstmt.setDate(1, (java.sql.Date) event.getEventDate());
+            pstmt.setDate(1, new java.sql.Date(event.getEventDate().getTime()));
             pstmt.setString(2, event.getUnion().getUnionID());
             pstmt.setString(3, event.getEventType().getEventTypeID());
 
-            int res = pstmt.executeUpdate();
+            int res = executePreparedStatementUpdate(pstmt);
 
             if (res != 0) {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
@@ -286,6 +328,9 @@ public class Database {
                 } else {
                     System.out.println("Could not get generated ID!");
                 }
+            }
+            else {
+                event = getEvent(event.getUnion().getUnionID(), event.getEventDate());
             }
 
             return res != 0;
