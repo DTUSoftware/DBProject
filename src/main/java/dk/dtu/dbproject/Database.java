@@ -147,4 +147,36 @@ public class Database {
 
         return null;
     }
+
+    public boolean addContender(Contender contender) {
+        return true;
+    }
+
+    public boolean addUnion(Union union) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO union (ID, name, email, address, phone_number) VALUES (?, ?, ?, ?, ?)");
+            
+            pstmt.setString(1, union.getUnionID());
+            pstmt.setString(2, union.getName());
+            pstmt.setString(3, union.getEmail());
+            pstmt.setString(4, union.getAddress());
+            pstmt.setString(5, union.getPhoneNumber());
+
+            int res = pstmt.executeUpdate();
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean addEventType(EventType eventType) {
+        return true;
+    }
+
+    public boolean addEvent(Event event) {
+        return true;
+    }
 }

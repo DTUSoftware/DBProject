@@ -19,8 +19,7 @@ CREATE TABLE IF NOT EXISTS sports_union (
 );
 
 CREATE TABLE IF NOT EXISTS event_type (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
-    description VARCHAR(50)
+    ID VARCHAR(50) PRIMARY KEY
 );
 
 CREATE TABLE IF NOT EXISTS age_group (
@@ -30,7 +29,7 @@ CREATE TABLE IF NOT EXISTS age_group (
 );
 
 CREATE TABLE IF NOT EXISTS event_type_age_group (
-    event_type_id INT NOT NULL,
+    event_type_id VARCHAR(50) NOT NULL,
     age_group_id INT NOT NULL,
     gender boolean,
     PRIMARY KEY (event_type_id, age_group_id),
@@ -42,7 +41,7 @@ CREATE TABLE IF NOT EXISTS event (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     date DATETIME NOT NULL,
     union_id varchar(255) NOT NULL,
-    event_type_id INT NOT NULL,
+    event_type_id VARCHAR(50) NOT NULL,
     FOREIGN KEY (union_id) REFERENCES sports_union(ID),
     FOREIGN KEY (event_type_id) REFERENCES event_type(ID)
 );

@@ -77,7 +77,15 @@ public class CSVReader {
 								throw new NumberFormatException("Ugyldig værdi (" + values.get(7) + ") for event dato på linie " + lineNbr);
 							}
 
-						Signup poa = new Signup(email, fornavn, efternavn, koen, foedselsdato, foreningsId, eventTypeId, eventDato);
+						Boolean gender = null;
+						if (koen.equals("M")) {
+							gender = true;
+						}
+						else if (koen.equals("F")) {
+							gender = false;
+						}
+
+						Signup poa = new Signup(email, fornavn, efternavn, gender, foedselsdato, foreningsId, eventTypeId, eventDato);
 						poaList.add(poa);
 					} else
 						throw new IOException("Ugyldigt antal værdier på linie " +lineNbr +". Forventede " +NUMBER_OF_FIELDS_EXPECTED +" værdier, læste " +values.size());

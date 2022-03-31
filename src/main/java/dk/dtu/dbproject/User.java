@@ -48,8 +48,6 @@ public class User {
         return birthdate;
     }
 
-
-
     @Override
     public String toString() {
         final String D = ";";

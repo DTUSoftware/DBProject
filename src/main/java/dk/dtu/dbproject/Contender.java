@@ -4,33 +4,42 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Contender {
-    private final String unionID;
-    private final String eventTypeID;
-    private final Date eventDate;
+    private final User user;
+    private final Event event;
+    private int time;
 
-    public Contender(String unionID, String eventTypeID, Date eventDate) {
-        this.unionID = unionID;
-        this.eventTypeID = eventTypeID;
-        this.eventDate = eventDate;
+    public Contender(User user, Event event) {
+        this.user = user;
+        this.event = event;
     }
 
-    public String getUnionID() {
-        return unionID;
+    public Contender(User user, Event event, int time) {
+        this(user, event);
+        this.time = time;
     }
 
-    public String getEventTypeID() {
-        return eventTypeID;
+    public User getUser() {
+        return user;
     }
 
-    public Date getEventDate() {
-        return eventDate;
+    public Event getEvent() {
+        return event;
     }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
         final String D = ";";
         final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd");
 
-        return getUnionID() +D + getEventTypeID() +D +dateFormatter.format(getEventDate());
+        return event.getUnion().getUnionID() +D + event.getEventType() +D +dateFormatter.format(event.getEventDate());
     }
 
 }

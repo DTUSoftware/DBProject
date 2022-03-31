@@ -3,12 +3,17 @@ package dk.dtu.dbproject;
 import com.google.common.io.Resources;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * Main function for the DB project
  */
 public class Main {
+    private final static String DATABASE_HOST = "localhost";
+    private final static int DATABASE_PORT = 3306;
+    private final static String DATABASE_USERNAME = "root";
+    private final static String DATABASE_PASSWORD = "";
+
     public static void main(String[] args) {
         List<Signup> signups = fetchSignups();
         syncSignups(signups);
@@ -40,9 +45,40 @@ public class Main {
      * Syncs the signups to the database.
      */
     private static void syncSignups(List<Signup> signups) {
-        Database db = new Database("localhost", 3306, "root", "");
+        Database db = new Database(DATABASE_HOST, DATABASE_PORT, DATABASE_USERNAME, DATABASE_PASSWORD);
         if (!db.connected()) {
             return;
+        }
+
+        // Ensure no duplicates
+        Set<User> users = new HashSet<>();
+        Set<Union> unions = new HashSet<>();
+        Set<EventType> eventTypes = new HashSet<>();
+        Set<Event> events = new HashSet<>();
+        Set<Contender> contenders = new HashSet<>();
+        for (Signup signup : signups) {
+            users.add(signup.getUser());
+            unions.add(signup.getUnion());
+            eventTypes.add(signup.getEvent().getEventType());
+            events.add(signup.getEvent());
+            contenders.add(signup.getContender());
+        }
+
+        // Add everything
+        for (User user : users) {
+            db.addUser(user);
+        }
+        for (Union union : unions) {
+            db.addUnion(union);
+        }
+        for (EventType eventType : eventTypes) {
+            db.addEventType(eventType);
+        }
+        for (Event event : events) {
+            db.addEvent(event);
+        }
+        for (Contender contender : contenders) {
+            db.addContender(contender);
         }
     }
 }
