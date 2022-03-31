@@ -96,18 +96,46 @@ public class Database {
 
     // ============ Queries ============ //
 
-    public User getPerson(String email) {
+    public boolean addUser(User user) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO user (email, firstname, lastname, address, birthdate, gender) VALUES (?, ?, ?, ?, ?, ?)");
+            pstmt.setString(1, user.getEmail());
+            pstmt.setString(2, user.getFirstname());
+            pstmt.setString(3, user.getLastname());
+            pstmt.setString(4, user.getAddress());
+            pstmt.setDate(5, (java.sql.Date) user.getBirthdate());
+            Boolean gender = user.getGender();
+            if (gender == null) {
+                pstmt.setNull(6, Types.BOOLEAN);
+            }
+            else {
+                pstmt.setBoolean(6, gender);
+            }
+            int res = pstmt.executeUpdate();
+            return true;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public User getUser(String email) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from user WHERE email == ?");
             pstmt.setString(1, email);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                boolean gender_bool = rs.getBoolean(rs.getString("gender"));
-                String gender = rs.wasNull() ? "Other" : (gender_bool ? "Male" : "Female");
+                Boolean gender = rs.getBoolean(rs.getString("gender"));
+                if (rs.wasNull()) {
+                    gender = null;
+                }
 
                 User user = new User(
                         rs.getString("email"),
                         rs.getString("firstname"), rs.getString("lastname"),
+                        rs.getString("address"),
                         gender, rs.getDate("birthdate")
                 );
                 return user;

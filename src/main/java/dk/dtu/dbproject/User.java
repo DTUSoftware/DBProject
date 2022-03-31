@@ -7,13 +7,15 @@ public class User {
     private final String email;
     private final String firstname;
     private final String lastname;
-    private final String gender;
+    private final String address;
+    private final Boolean gender;
     private final Date birthdate;
 
-    public User(String email, String firstname, String lastname, String gender, Date birthdate) {
+    public User(String email, String firstname, String lastname, String address, Boolean gender, Date birthdate) {
         this.email = email;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.address = address;
         this.gender = gender;
         this.birthdate = birthdate;
     }
@@ -30,8 +32,16 @@ public class User {
         return lastname;
     }
 
-    public String getGender() {
+    public String getAddress() {
+        return address;
+    }
+
+    public Boolean getGender() {
         return gender;
+    }
+
+    public String getGenderString() {
+        return (gender == null) ? "O" : (gender ? "M" : "F");
     }
 
     public Date getBirthdate() {
@@ -45,7 +55,7 @@ public class User {
         final String D = ";";
         final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd");
 
-        return getEmail() +D + getFirstname() +D + getLastname() +D + getGender() +D +dateFormatter.format(getBirthdate());
+        return getEmail() +D + getFirstname() +D + getLastname() +D + getGenderString() +D +dateFormatter.format(getBirthdate());
     }
 }
 
