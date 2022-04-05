@@ -83,13 +83,30 @@ END $$
 DELIMITER ;
 
 DELIMITER //
-CREATE FUNCTION IF NOT EXISTS ageCalc (@birthDate date) RETURNS INT
-AS BEGIN
-    DECLARE @age INT;
-    SET @age = DATEDIFF(@birthDate,current_date);
-    RETURN @age;
+CREATE FUNCTION IF NOT EXISTS ageCalc (birthDate date) RETURNS INT
+BEGIN
+    DECLARE age INT;
+    SET age = DATEDIFF(birthDate, current_date);
+    RETURN age;
 END//
 DELIMITER ;
+
+CREATE VIEW IF NOT EXISTS results AS
+SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time
+FROM event_type_age_group
+INNER JOIN event
+         ON event_type_age_group.event_type_id = event.event_type_id
+INNER JOIN contender
+         ON event.date = contender.event_date
+             AND event.union_id = contender.union_id
+             AND event.event_type_id = contender.event_type_id
+INNER JOIN user
+         ON contender.user_email = user.email
+             AND user.gender = event_type_age_group.gender
+WHERE
+      contender.time IS NOT NULL
+          && ageCalc(user.birthdate) >= event_type_age_group.lower_age
+          && ageCalc(user.birthdate) <= event_type_age_group.upper_age;
 
 COMMIT;
 SET autocommit = 1;
