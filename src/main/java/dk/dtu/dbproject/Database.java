@@ -94,19 +94,17 @@ public class Database {
             }
         }
     }
-    
+
     private int executePreparedStatementUpdate(PreparedStatement pstmt) {
         System.out.println("Executing " + pstmt.toString().replace("com.mysql.cj.jdbc.ClientPreparedStatement: ", ""));
         try {
             return pstmt.executeUpdate();
-        }
-        catch (SQLIntegrityConstraintViolationException e) {
+        } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("Duplicate entry - " + e);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return 0;
     }
 
@@ -182,8 +180,7 @@ public class Database {
                 contenders.add(contender);
             }
             return contenders.toArray(new Contender[0]);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -204,8 +201,7 @@ public class Database {
                 );
                 return event;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -328,8 +324,7 @@ public class Database {
                 } else {
                     System.out.println("Could not get generated ID!");
                 }
-            }
-            else {
+            } else {
                 event = getEvent(event.getUnion().getUnionID(), event.getEventDate());
             }
 
@@ -339,6 +334,14 @@ public class Database {
         }
 
         return false;
+    }
+
+    public boolean deleteContender(Contender contender) {
+        try {
+            PreparedStatement ptsmt = this.conn.prepareStatement("DELETE FROM contender WHERE ID = asd");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public AgeGroup getAgeGroup(Contender contender) {
