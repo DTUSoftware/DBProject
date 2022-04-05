@@ -83,7 +83,7 @@ END $$
 DELIMITER ;
 
 DELIMITER //
-CREATE FUNCTION ageCalc (@birthDate date) RETURNS INT
+CREATE FUNCTION IF NOT EXISTS ageCalc (@birthDate date) RETURNS INT
 AS BEGIN
     DECLARE @age INT;
     SET @age = DATEDIFF(@birthDate,current_date);
