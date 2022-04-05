@@ -92,6 +92,14 @@ END//
 DELIMITER ;
 
 DELIMITER //
+CREATE PROCEDURE AddMaleUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date)
+BEGIN
+    INSERT user(email, firstname, lastname, address, birthdate, gender)
+        VALUES (iemail,ifirstname,ilastname,iaddress,ibirthdate,TRUE);
+END //
+DELIMITER ;
+
+DELIMITER //
 CREATE PROCEDURE AddUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date, IN igender boolean)
 BEGIN
     INSERT user(email, firstname, lastname, address, birthdate, gender)
