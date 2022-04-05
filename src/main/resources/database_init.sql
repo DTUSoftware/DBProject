@@ -75,7 +75,16 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Error: Your birthdate cannot be later than the current date';
     end if;
-END;
-$$
+END $$
 DELIMITER ;
+
+DELIMITER //
+CREATE FUNCTION ageCalc (@birthDate date) RETURNS INT
+AS BEGIN
+    DECLARE @age INT;
+    SET @age = DATEDIFF(@birthDate,current_date);
+    RETURN @age;
+END//
+DELIMITER ;
+
 
