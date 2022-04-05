@@ -338,10 +338,12 @@ public class Database {
 
     public boolean deleteContender(Contender contender) {
         try {
-            PreparedStatement ptsmt = this.conn.prepareStatement("DELETE FROM contender WHERE ID = asd");
+            PreparedStatement ptsmt = this.conn.prepareStatement("DELETE FROM contender WHERE  unique_event_id = ");
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public AgeGroup getAgeGroup(Contender contender) {
