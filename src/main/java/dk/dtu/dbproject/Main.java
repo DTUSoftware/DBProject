@@ -17,7 +17,14 @@ public class Main {
 
     public static void main(String[] args) {
         List<Signup> signups = fetchSignups();
-        syncSignups(signups);
+
+        Database db = new Database(DATABASE_HOST, DATABASE_PORT, DATABASE_USERNAME, DATABASE_PASSWORD);
+        if (!db.connected()) {
+            return;
+        }
+
+        syncSignups(db, signups);
+        insertTestData(db);
     }
 
     /**
@@ -45,8 +52,7 @@ public class Main {
     /**
      * Syncs the signups to the database.
      */
-    private static void syncSignups(List<Signup> signups) {
-        Database db = new Database(DATABASE_HOST, DATABASE_PORT, DATABASE_USERNAME, DATABASE_PASSWORD);
+    private static void syncSignups(Database db, List<Signup> signups) {
         if (!db.connected()) {
             return;
         }
@@ -83,5 +89,39 @@ public class Main {
         for (Contender contender : contenders) {
             db.addContender(contender);
         }
+    }
+
+    private static void insertTestData(Database db) {
+        if (!db.connected()) {
+            return;
+        }
+
+        int[] lowerAges = {0, 10, 20, 30, 60, 80};
+
+        EventType[] eventTypes = db.getEventTypes();
+
+        for (int i = 0; i < lowerAges.length; i++) {
+            int upperAge = 200;
+            if (i+1 < lowerAges.length) {
+                upperAge = lowerAges[i+1]-1;
+            }
+            AgeGroup ageGroup = new AgeGroup(lowerAges[i], upperAge);
+            db.addAgeGroup(ageGroup);
+            for (EventType eventType : eventTypes) {
+                db.addEventTypeAgeGroup(eventType, ageGroup, false);
+                db.addEventTypeAgeGroup(eventType, ageGroup, true);
+            }
+        }
+
+        Contender[] contenders = db.getContenders();
+        Random random = new Random();
+
+        for (Contender contender : contenders) {
+            if (random.nextBoolean()) {
+                contender.setTime(random.nextInt((2000 - 100) + 1) + 100);
+                db.updateContenderTime(contender);
+            }
+        }
+
     }
 }
