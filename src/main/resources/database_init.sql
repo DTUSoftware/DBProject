@@ -23,35 +23,38 @@ CREATE TABLE IF NOT EXISTS event_type (
 );
 
 CREATE TABLE IF NOT EXISTS age_group (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
     lower_age INT NOT NULL,
-    upper_age INT NOT NULL
+    upper_age INT NOT NULL,
+    PRIMARY KEY (lower_age, upper_age)
 );
 
 CREATE TABLE IF NOT EXISTS event_type_age_group (
     event_type_id VARCHAR(50) NOT NULL,
-    age_group_id INT NOT NULL,
-    gender boolean,
-    PRIMARY KEY (event_type_id, age_group_id),
+    lower_age INT NOT NULL,
+    upper_age INT NOT NULL,
+    gender BOOLEAN NOT NULL,
+    PRIMARY KEY (event_type_id, lower_age, upper_age, gender),
     FOREIGN KEY (event_type_id) REFERENCES event_type(ID),
-    FOREIGN KEY (age_group_id) REFERENCES age_group(ID)
+    FOREIGN KEY (lower_age, upper_age) REFERENCES age_group(lower_age, upper_age)
 );
 
 CREATE TABLE IF NOT EXISTS event (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
     date DATETIME NOT NULL,
     union_id varchar(255) NOT NULL,
     event_type_id VARCHAR(50) NOT NULL,
+    PRIMARY KEY (date, union_id, event_type_id),
     FOREIGN KEY (union_id) REFERENCES sports_union(ID),
     FOREIGN KEY (event_type_id) REFERENCES event_type(ID)
 );
 
 CREATE TABLE IF NOT EXISTS contender (
-    ID INT AUTO_INCREMENT PRIMARY KEY,
     unique_event_id INT NOT NULL,
-    event_id INT NOT NULL,
+    event_date DATETIME NOT NULL,
+    union_id varchar(255) NOT NULL,
+    event_type_id VARCHAR(50) NOT NULL,
     user_email VARCHAR(254) NOT NULL,
     time INT,
-    FOREIGN KEY (event_id) REFERENCES event(ID),
+    PRIMARY KEY (user_email, event_date, union_id, event_type_id),
+    FOREIGN KEY (event_date, union_id, event_type_id) REFERENCES event(date, union_id, event_type_id),
     FOREIGN KEY (user_email) REFERENCES user(email)
 );

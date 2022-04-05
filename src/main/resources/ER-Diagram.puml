@@ -46,10 +46,9 @@ entity AgeGroup {
 }
 
 entity EventType_AgeGroup {
-    * age_group_id : number <<FK>>
+    * lower_age : number <<FK>>
+    * upper_age : number <<FK>>
     * event_type_id : text <<FK>>
-    --
-    gender : boolean
 }
 EventType ||..|{ EventType_AgeGroup
 EventType_AgeGroup }o..|| AgeGroup
