@@ -1,6 +1,7 @@
 package dk.dtu.dbproject;
 
 import com.google.common.io.Resources;
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,30 @@ public class Database {
         return this.conn != null;
     }
 
+    public void startTransaction() {
+        try {
+            Statement stmt = this.conn.createStatement();
+            stmt.executeQuery("SET autocommit = 0");
+            stmt.executeQuery("START TRANSACTION");
+        } catch (SQLException e) {
+            System.out.println("Could not start transaction...");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void endTransaction() {
+        try {
+            Statement stmt = this.conn.createStatement();
+            stmt.executeQuery("COMMIT");
+            stmt.executeQuery("SET autocommit = 1");
+        } catch (SQLException e) {
+            System.out.println("Could not start transaction...");
+            e.printStackTrace();
+            return;
+        }
+    }
+
     private void executeUpdate(String sql) {
         System.out.println("Executing: " + sql);
 
@@ -81,16 +106,39 @@ public class Database {
     private void init() {
         String sql_script;
         try {
-            sql_script = String.join(" ", Files.readAllLines(new File(Resources.class.getClassLoader().getResource("database_init.sql").getPath()).toPath(), StandardCharsets.UTF_8)).replace("    ", "");
+            sql_script = String.join(" ", Files.readAllLines(new File(Resources.class.getClassLoader().getResource("database_init.sql").getPath()).toPath(), StandardCharsets.UTF_8)).replaceAll("\\s\\s+", " ");
         } catch (Exception e) {
             System.out.println("fuck");
             return;
         }
-        String[] sql = sql_script.split(";");
-        for (int i = 0; i < sql.length; i++) {
-            sql[i] = sql[i].trim();
-            if (sql[i] != null && !sql[i].equals("")) {
-                executeUpdate(sql[i]);
+
+        String delimiter = ";";
+        String[] sqlDelimited = {sql_script};
+        if (sql_script.toUpperCase().contains("DELIMITER")) {
+            sqlDelimited = sql_script.split("DELIMITER ");
+        }
+
+        for (String sqlScript : sqlDelimited) {
+            String possibleDelimiter = sqlScript.split(" ")[0].toUpperCase();
+            if (!possibleDelimiter.equals("SET") && !possibleDelimiter.equals("CREATE") &&
+                    !possibleDelimiter.equals("USE") && !possibleDelimiter.equals("COMMIT")) {
+                delimiter = possibleDelimiter.trim();
+                System.out.println("Changed delimiter to: " + delimiter);
+                ArrayList<String> regexArray = new ArrayList<>();
+                for (int i = 0; i < delimiter.length(); i++) {
+                    regexArray.add("\\"+delimiter.charAt(i));
+                }
+                delimiter = String.join("", regexArray);
+                sqlScript = sqlScript.replaceFirst(delimiter, "");
+            }
+
+
+            String[] sql = sqlScript.split(delimiter);
+            for (int i = 0; i < sql.length; i++) {
+                sql[i] = sql[i].trim();
+                if (sql[i] != null && !sql[i].equals("")) {
+                    executeUpdate(sql[i]);
+                }
             }
         }
     }
@@ -389,8 +437,7 @@ public class Database {
 
             pstmt.setInt(1, ageGroup.getLowerAge());
             pstmt.setInt(2, ageGroup.getUpperAge());
-            
-            ResultSet rs = pstmt.executeQuery();
+
             int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {

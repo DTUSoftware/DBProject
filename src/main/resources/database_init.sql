@@ -1,3 +1,6 @@
+SET autocommit = 0;
+START TRANSACTION;
+
 CREATE DATABASE IF NOT EXISTS tidsmaskinen;
 USE tidsmaskinen;
 
@@ -65,8 +68,9 @@ CREATE TABLE IF NOT EXISTS contender
     FOREIGN KEY (event_date, union_id, event_type_id) REFERENCES event (date, union_id, event_type_id),
     FOREIGN KEY (user_email) REFERENCES user (email)
 );
+
 DELIMITER $$
-CREATE TRIGGER check_date
+CREATE TRIGGER IF NOT EXISTS check_date
     BEFORE INSERT
     ON user
     FOR EACH ROW
@@ -78,4 +82,7 @@ BEGIN
 END;
 $$
 DELIMITER ;
+
+COMMIT;
+SET autocommit = 1;
 

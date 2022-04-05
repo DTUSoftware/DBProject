@@ -57,6 +57,8 @@ public class Main {
             return;
         }
 
+        db.startTransaction();
+
         // Ensure no duplicates
         Set<User> users = new HashSet<>();
         Set<Union> unions = new HashSet<>();
@@ -89,6 +91,8 @@ public class Main {
         for (Contender contender : contenders) {
             db.addContender(contender);
         }
+
+        db.endTransaction();
     }
 
     private static void insertTestData(Database db) {
