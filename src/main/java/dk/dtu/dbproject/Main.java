@@ -122,7 +122,13 @@ public class Main {
 
         for (Contender contender : contenders) {
             if (random.nextBoolean()) {
-                contender.setTime(random.nextInt((2000 - 100) + 1) + 100);
+                // mimic realworld data
+                if (contender.getUser().getGender()) {
+                    contender.setTime(random.nextInt((1000 - 100) + 1) + 100);
+                }
+                else {
+                    contender.setTime(random.nextInt((50000 - 500) + 1) + 500);
+                }
                 db.updateContenderTime(contender);
             }
         }

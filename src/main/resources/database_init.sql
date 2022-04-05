@@ -92,7 +92,7 @@ END//
 DELIMITER ;
 
 CREATE VIEW IF NOT EXISTS results AS
-SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time
+SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time, ageCalc(user.birthdate) as age
 FROM event_type_age_group
 INNER JOIN event
          ON event_type_age_group.event_type_id = event.event_type_id
@@ -106,7 +106,8 @@ INNER JOIN user
 WHERE
       contender.time IS NOT NULL
           && ageCalc(user.birthdate) >= event_type_age_group.lower_age
-          && ageCalc(user.birthdate) <= event_type_age_group.upper_age;
+          && ageCalc(user.birthdate) <= event_type_age_group.upper_age
+ORDER BY contender.time;
 
 COMMIT;
 SET autocommit = 1;
