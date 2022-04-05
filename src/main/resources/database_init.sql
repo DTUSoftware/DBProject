@@ -86,7 +86,7 @@ DELIMITER //
 CREATE FUNCTION IF NOT EXISTS ageCalc (birthDate date) RETURNS INT
 BEGIN
     DECLARE age INT;
-    SET age = DATEDIFF(birthDate, current_date);
+    SET age = DATEDIFF(current_date, birthDate)/365;
     RETURN age;
 END//
 DELIMITER ;
