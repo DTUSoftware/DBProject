@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS contender
     FOREIGN KEY (event_date, union_id, event_type_id) REFERENCES event (date, union_id, event_type_id),
     FOREIGN KEY (user_email) REFERENCES user (email)
 );
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER check_date
     BEFORE INSERT
     ON user
@@ -75,7 +75,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Error: Your birthdate cannot be later than the current date';
     end if;
-END $$
+END //
 DELIMITER ;
 
 DELIMITER //
@@ -87,4 +87,7 @@ AS BEGIN
 END//
 DELIMITER ;
 
-
+DELIMITER //
+CREATE PROCEDURE insert_user
+END //
+DELIMITER ;
