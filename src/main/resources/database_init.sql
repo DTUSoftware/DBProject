@@ -48,11 +48,11 @@ CREATE TABLE IF NOT EXISTS event (
 );
 
 CREATE TABLE IF NOT EXISTS contender (
+    user_email VARCHAR(254) NOT NULL,
     unique_event_id INT NOT NULL,
     event_date DATETIME NOT NULL,
     union_id varchar(255) NOT NULL,
     event_type_id VARCHAR(50) NOT NULL,
-    user_email VARCHAR(254) NOT NULL,
     time INT,
     PRIMARY KEY (user_email, event_date, union_id, event_type_id),
     FOREIGN KEY (event_date, union_id, event_type_id) REFERENCES event(date, union_id, event_type_id),

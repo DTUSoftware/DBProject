@@ -37,7 +37,7 @@ public class Signup {
 				unions.add(union);
 			}
 
-			Event event = new Event(null, eventDate, union, new EventType(eventTypeId));
+			Event event = new Event(eventDate, union, new EventType(eventTypeId));
 			// this shit runs bad, but fuck it
 			if (events.contains(event)) {
 				for (Event e2 : events) {

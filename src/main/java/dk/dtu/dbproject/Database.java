@@ -160,22 +160,23 @@ public class Database {
     }
 
     public Contender[] getEventContenders(Event event) {
-        if (event.getEventID() == null) {
+        if (event == null) {
             return new Contender[0];
         }
 
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from contender WHERE `event_id` = ?");
-            pstmt.setInt(1, event.getEventID());
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from contender WHERE `event_date` = ? && `union_id` = ? && `event_type_id` = ?");
+            pstmt.setDate(1, new java.sql.Date(event.getEventDate().getTime()));
+            pstmt.setString(2, event.getUnion().getUnionID());
+            pstmt.setString(3, event.getEventType().getEventTypeID());
             System.out.println(pstmt.toString());
             ResultSet rs = pstmt.executeQuery();
             ArrayList<Contender> contenders = new ArrayList<>();
             while (rs.next()) {
                 User user = getUser(rs.getString("user_email"));
-                Event db_event = getEvent(rs.getInt("event_id"));
 
                 Contender contender = new Contender(
-                        user, db_event
+                        user, event
                 );
                 contenders.add(contender);
             }
@@ -187,14 +188,15 @@ public class Database {
         return null;
     }
 
-    private Event getEvent(int eventID) {
+    private Event getEvent(java.util.Date date, Union union, EventType eventType) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `ID` = ?");
-            pstmt.setInt(1, eventID);
+            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `date` = ? && `union_id` = ? && `event_type_id` = ?");
+            pstmt.setDate(1, new java.sql.Date(date.getTime()));
+            pstmt.setString(2, union.getUnionID());
+            pstmt.setString(3, eventType.getEventTypeID());
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 Event event = new Event(
-                        rs.getInt("ID"),
                         rs.getDate("date"),
                         getUnion(rs.getString("union_id")),
                         new EventType(rs.getString("event_type_id"))
@@ -209,27 +211,26 @@ public class Database {
     }
 
 
-    private Event getEvent(String unionID, java.util.Date eventDate) {
-        try {
-            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `union_id` = ? && `date` = ?");
-            pstmt.setString(1, unionID);
-            pstmt.setDate(2, new java.sql.Date(eventDate.getTime()));
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                Event event = new Event(
-                        rs.getInt("ID"),
-                        rs.getDate("date"),
-                        getUnion(rs.getString("union_id")),
-                        new EventType(rs.getString("event_type_id"))
-                );
-                return event;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
+//    private Event getEvent(String unionID, java.util.Date eventDate) {
+//        try {
+//            PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `union_id` = ? && `date` = ?");
+//            pstmt.setString(1, unionID);
+//            pstmt.setDate(2, new java.sql.Date(eventDate.getTime()));
+//            ResultSet rs = pstmt.executeQuery();
+//            if (rs.next()) {
+//                Event event = new Event(
+//                        rs.getDate("date"),
+//                        getUnion(rs.getString("union_id")),
+//                        new EventType(rs.getString("event_type_id"))
+//                );
+//                return event;
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
 
     private Union getUnion(String unionID) {
         try {
@@ -255,11 +256,13 @@ public class Database {
 
     public boolean addContender(Contender contender) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (`unique_event_id`, `event_id`, `user_email`) VALUES (?, ?, ?)");
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO contender (`unique_event_id`, `user_email`, `event_date`, `union_id`, `event_type_id`) VALUES (?, ?, ?, ?, ?)");
 
             pstmt.setInt(1, getEventContenders(contender.getEvent()).length + 1);
-            pstmt.setInt(2, contender.getEvent().getEventID());
-            pstmt.setString(3, contender.getUser().getEmail());
+            pstmt.setString(2, contender.getUser().getEmail());
+            pstmt.setDate(3, new java.sql.Date(contender.getEvent().getEventDate().getTime()));
+            pstmt.setString(4, contender.getEvent().getUnion().getUnionID());
+            pstmt.setString(5, contender.getEvent().getEventType().getEventTypeID());
 
             int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
@@ -306,28 +309,13 @@ public class Database {
 
     public boolean addEvent(Event event) {
         try {
-            PreparedStatement pstmt = this.conn.prepareStatement(
-                    "INSERT INTO event (`date`, `union_id`, `event_type_id`) VALUES (?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event (`date`, `union_id`, `event_type_id`) VALUES (?, ?, ?)");
 
             pstmt.setDate(1, new java.sql.Date(event.getEventDate().getTime()));
             pstmt.setString(2, event.getUnion().getUnionID());
             pstmt.setString(3, event.getEventType().getEventTypeID());
 
             int res = executePreparedStatementUpdate(pstmt);
-
-            if (res != 0) {
-                ResultSet generatedKeys = pstmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    event.setEventID(generatedKeys.getInt(1));
-                } else {
-                    System.out.println("Could not get generated ID!");
-                }
-            } else {
-                event = getEvent(event.getUnion().getUnionID(), event.getEventDate());
-            }
-
             return res != 0;
         } catch (SQLException e) {
             e.printStackTrace();

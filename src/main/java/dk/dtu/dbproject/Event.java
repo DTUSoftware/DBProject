@@ -4,24 +4,14 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Event {
-    private Integer eventID;
     private final Date eventDate;
     private final Union union;
     private final EventType eventType;
 
-    public Event(Integer eventID, Date eventDate, Union union, EventType eventType) {
-        this.eventID = eventID;
+    public Event(Date eventDate, Union union, EventType eventType) {
         this.eventDate = eventDate;
         this.union = union;
         this.eventType = eventType;
-    }
-
-    public Integer getEventID() {
-        return eventID;
-    }
-
-    public void setEventID(int eventID) {
-        this.eventID = eventID;
     }
 
     public Date getEventDate() {
