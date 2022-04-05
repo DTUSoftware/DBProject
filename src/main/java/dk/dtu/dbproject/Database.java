@@ -188,6 +188,46 @@ public class Database {
         return null;
     }
 
+    public Contender[] getContenders() {
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * from contender");
+            ArrayList<Contender> contenders = new ArrayList<>();
+            while (rs.next()) {
+                User user = getUser(rs.getString("user_email"));
+                Event event = getEvent(rs.getDate("event_date"), getUnion(rs.getString("union_id")), new EventType(rs.getString("event_type_id")));
+
+                Contender contender = new Contender(
+                        user, event
+                );
+                contenders.add(contender);
+            }
+            return contenders.toArray(new Contender[0]);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public EventType[] getEventTypes() {
+        try {
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * from event_type");
+            ArrayList<EventType> eventTypes = new ArrayList<>();
+            while (rs.next()) {
+                eventTypes.add(new EventType(rs.getString("ID")));
+            }
+            return eventTypes.toArray(new EventType[0]);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private Event getEvent(java.util.Date date, Union union, EventType eventType) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("SELECT * from event WHERE `date` = ? && `union_id` = ? && `event_type_id` = ?");
@@ -273,6 +313,25 @@ public class Database {
         return false;
     }
 
+    public boolean updateContenderTime(Contender contender) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("UPDATE contender SET `time` = ? WHERE `user_email` = ? && `event_date` = ? && `union_id` = ? && `event_type_id` = ?");
+
+            pstmt.setInt(1, contender.getTime());
+            pstmt.setString(2, contender.getUser().getEmail());
+            pstmt.setDate(3, new java.sql.Date(contender.getEvent().getEventDate().getTime()));
+            pstmt.setString(4, contender.getEvent().getUnion().getUnionID());
+            pstmt.setString(5, contender.getEvent().getEventType().getEventTypeID());
+
+            int res = executePreparedStatementUpdate(pstmt);
+            return res != 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public boolean addUnion(Union union) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO sports_union (`ID`, `name`, `email`, `address`, `phone_number`) VALUES (?, ?, ?, ?, ?)");
@@ -324,6 +383,23 @@ public class Database {
         return false;
     }
 
+    public boolean addAgeGroup(AgeGroup ageGroup) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO age_group (`lower_age`, `upper_age`) VALUES (?, ?)");
+
+            pstmt.setInt(1, ageGroup.getLowerAge());
+            pstmt.setInt(2, ageGroup.getUpperAge());
+            
+            ResultSet rs = pstmt.executeQuery();
+            int res = executePreparedStatementUpdate(pstmt);
+            return res != 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public boolean deleteContender(Contender contender) {
         try {
             PreparedStatement pstmt = this.conn.prepareStatement("DELETE FROM contender WHERE `user_email` = ? AND `event_data` = ? AND `union_id` = ? AND `event_type_id` = ?");
@@ -337,6 +413,30 @@ public class Database {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return false;
+    }
+
+    public boolean addEventTypeAgeGroup(EventType eventType, AgeGroup ageGroup, Boolean gender) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("INSERT INTO event_type_age_group (`event_type_id`, `lower_age`, `upper_age`, `gender`) VALUES (?, ?, ?, ?)");
+
+            pstmt.setString(1, eventType.getEventTypeID());
+            pstmt.setInt(2, ageGroup.getLowerAge());
+            pstmt.setInt(3, ageGroup.getUpperAge());
+            if (gender == null) {
+                pstmt.setNull(4, Types.BOOLEAN);
+            }
+            else {
+                pstmt.setBoolean(4, gender);
+            }
+
+            int res = executePreparedStatementUpdate(pstmt);
+            return res != 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return false;
     }
 
@@ -367,7 +467,7 @@ public class Database {
         //reparedStatement pstmt = this.conn.prepareStatement("");
 
 
-        AgeGroup ag = new AgeGroup(0, 10, 50);
+        AgeGroup ag = new AgeGroup(10, 50);
 
         return null;
     }
