@@ -92,8 +92,14 @@ END//
 DELIMITER ;
 
 DELIMITER //
-CREATE PROCEDURE insert_user
+CREATE PROCEDURE AddUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date, IN igender boolean)
+BEGIN
+    INSERT user(email, firstname, lastname, address, birthdate, gender)
+        VALUES (iemail,ifirstname,ilastname,iaddress,ibirthdate,igender);
 END //
+DELIMITER ;
+
+
 DELIMITER ;
 CREATE VIEW IF NOT EXISTS results AS
 SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time
