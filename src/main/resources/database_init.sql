@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS contender
     FOREIGN KEY (user_email) REFERENCES user (email)
 );
 
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER IF NOT EXISTS check_date
     BEFORE INSERT
     ON user
@@ -79,7 +79,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Error: Your birthdate cannot be later than the current date';
     end if;
-END $$
+END //
 DELIMITER ;
 
 DELIMITER //
@@ -91,6 +91,10 @@ BEGIN
 END//
 DELIMITER ;
 
+DELIMITER //
+CREATE PROCEDURE insert_user
+END //
+DELIMITER ;
 CREATE VIEW IF NOT EXISTS results AS
 SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time, ageCalc(user.birthdate) as age
 FROM event_type_age_group
