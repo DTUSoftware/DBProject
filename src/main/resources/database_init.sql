@@ -1,3 +1,6 @@
+SET autocommit = 0;
+START TRANSACTION;
+
 CREATE DATABASE IF NOT EXISTS tidsmaskinen;
 USE tidsmaskinen;
 
@@ -65,8 +68,9 @@ CREATE TABLE IF NOT EXISTS contender
     FOREIGN KEY (event_date, union_id, event_type_id) REFERENCES event (date, union_id, event_type_id),
     FOREIGN KEY (user_email) REFERENCES user (email)
 );
+
 DELIMITER //
-CREATE TRIGGER check_date
+CREATE TRIGGER IF NOT EXISTS check_date
     BEFORE INSERT
     ON user
     FOR EACH ROW
@@ -79,11 +83,11 @@ END //
 DELIMITER ;
 
 DELIMITER //
-CREATE FUNCTION ageCalc (@birthDate date) RETURNS INT
-AS BEGIN
-    DECLARE @age INT;
-    SET @age = DATEDIFF(@birthDate,current_date);
-    RETURN @age;
+CREATE FUNCTION IF NOT EXISTS ageCalc (birthDate date) RETURNS INT
+BEGIN
+    DECLARE age INT;
+    SET age = DATEDIFF(current_date, birthDate)/365;
+    RETURN age;
 END//
 DELIMITER ;
 
@@ -91,3 +95,22 @@ DELIMITER //
 CREATE PROCEDURE insert_user
 END //
 DELIMITER ;
+CREATE VIEW IF NOT EXISTS results AS
+SELECT event_type_age_group.gender, event_type_age_group.lower_age, event_type_age_group.upper_age, contender.user_email, contender.time
+FROM event_type_age_group
+INNER JOIN event
+         ON event_type_age_group.event_type_id = event.event_type_id
+INNER JOIN contender
+         ON event.date = contender.event_date
+             AND event.union_id = contender.union_id
+             AND event.event_type_id = contender.event_type_id
+INNER JOIN user
+         ON contender.user_email = user.email
+             AND user.gender = event_type_age_group.gender
+WHERE
+      contender.time IS NOT NULL
+          && ageCalc(user.birthdate) >= event_type_age_group.lower_age
+          && ageCalc(user.birthdate) <= event_type_age_group.upper_age;
+
+COMMIT;
+SET autocommit = 1;
