@@ -94,19 +94,17 @@ public class Database {
             }
         }
     }
-    
+
     private int executePreparedStatementUpdate(PreparedStatement pstmt) {
         System.out.println("Executing " + pstmt.toString().replace("com.mysql.cj.jdbc.ClientPreparedStatement: ", ""));
         try {
             return pstmt.executeUpdate();
-        }
-        catch (SQLIntegrityConstraintViolationException e) {
+        } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("Duplicate entry - " + e);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return 0;
     }
 
@@ -183,8 +181,7 @@ public class Database {
                 contenders.add(contender);
             }
             return contenders.toArray(new Contender[0]);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -246,8 +243,7 @@ public class Database {
                 );
                 return event;
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
@@ -393,7 +389,25 @@ public class Database {
 
             pstmt.setInt(1, ageGroup.getLowerAge());
             pstmt.setInt(2, ageGroup.getUpperAge());
+            
+            ResultSet rs = pstmt.executeQuery();
+            int res = executePreparedStatementUpdate(pstmt);
+            return res != 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
+        return false;
+    }
+
+    public boolean deleteContender(Contender contender) {
+        try {
+            PreparedStatement pstmt = this.conn.prepareStatement("DELETE FROM contender WHERE `user_email` = ? AND `event_data` = ? AND `union_id` = ? AND `event_type_id` = ?");
+            pstmt.setString(1, contender.getUser().getEmail());
+            pstmt.setDate(2, new java.sql.Date(contender.getEvent().getEventDate().getTime()));
+            pstmt.setString(3, contender.getEvent().getUnion().getUnionID());
+            pstmt.setString(4, contender.getEvent().getEventType().getEventTypeID());
+            ResultSet rs = pstmt.executeQuery();
             int res = executePreparedStatementUpdate(pstmt);
             return res != 0;
         } catch (SQLException e) {
@@ -423,6 +437,19 @@ public class Database {
             e.printStackTrace();
         }
 
+        return false;
+    }
+
+    public boolean deleteUser(User user){
+        try{
+            PreparedStatement pstmt = this.conn.prepareStatement("DELETE FROM contender WHERE `email` = ?");
+            pstmt.setString(1, user.getEmail());
+            ResultSet rs = pstmt.executeQuery();
+            int res = executePreparedStatementUpdate(pstmt);
+            return res != 0;
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
         return false;
     }
 
