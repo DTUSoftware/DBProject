@@ -10,10 +10,8 @@
 
 package dk.dtu.dbproject;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,17 +29,17 @@ public class CSVReader {
 
 	/**
 	 * Denne metode indlæser en datafil med personer og tilmeldinder og returnerer en liste med PersonOgTilmelding objekter der repræsenterer indholdet i filen.
-	 * @param filename filnavn på den fil der skal indlæses (inkl. sti hvis nødvendigt)
+	 * @param url filsti på den fil der skal indlæses (inkl. sti hvis nødvendigt)
 	 * @return List indeholdende PersonOgTilmelding objekter
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public List<Signup> readSignups(String filename) throws FileNotFoundException, IOException {
+	public List<Signup> readSignups(URL url) throws FileNotFoundException, IOException {
 		List<Signup> poaList = new ArrayList<Signup>();
 		
 		BufferedReader in = null;
 		try {
-			in = new BufferedReader(new FileReader(filename));
+			in = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
 
 		    String line;
 		    int lineNbr = 0;

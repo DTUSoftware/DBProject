@@ -23,8 +23,8 @@ public class Main {
             return;
         }
 
-        syncSignups(db, signups);
-        insertTestData(db);
+        // syncSignups(db, signups);
+        // insertTestData(db);
     }
 
     /**
@@ -35,7 +35,7 @@ public class Main {
         CSVReader reader = new CSVReader();
         List<Signup> signups = null;
         try {
-            signups = reader.readSignups(Resources.class.getClassLoader().getResource("tilmeldinger.csv").getPath());
+            signups = reader.readSignups(Resources.class.getClassLoader().getResource("tilmeldinger.csv"));
             for(Signup signup : signups) {
                 System.out.print("Person: " + signup.getUser());
                 if(signup.getContender() != null)

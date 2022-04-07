@@ -3,7 +3,10 @@ package dk.dtu.dbproject;
 import com.google.common.io.Resources;
 import org.checkerframework.checker.units.qual.A;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.*;
@@ -13,6 +16,8 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Database {
     private Connection conn;
@@ -106,9 +111,13 @@ public class Database {
     private void init() {
         String sql_script;
         try {
-            sql_script = String.join(" ", Files.readAllLines(new File(Resources.class.getClassLoader().getResource("database_init.sql").getPath()).toPath(), StandardCharsets.UTF_8)).replaceAll("\\s\\s+", " ");
+            URL url = Resources.class.getClassLoader().getResource("database_init.sql");
+            List<String> sql_lines = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
+
+            sql_script = String.join(" ", sql_lines).replaceAll("\\s\\s+", " ");
         } catch (Exception e) {
             System.out.println("fuck");
+            e.printStackTrace();
             return;
         }
 

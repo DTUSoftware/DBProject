@@ -64,7 +64,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean package javadoc:javadoc</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
