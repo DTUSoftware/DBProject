@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class Main {
     private final static String DATABASE_HOST = "localhost";
-    private final static int DATABASE_PORT = 3307;
+    private final static int DATABASE_PORT = 3306;
     private final static String DATABASE_USERNAME = "root";
     private final static String DATABASE_PASSWORD = "";
 
