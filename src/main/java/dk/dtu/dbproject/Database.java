@@ -59,7 +59,6 @@ public class Database {
     public void startTransaction() {
         try {
             Statement stmt = this.conn.createStatement();
-            stmt.executeQuery("SET autocommit = 0");
             stmt.executeQuery("START TRANSACTION");
         } catch (SQLException e) {
             System.out.println("Could not start transaction...");
@@ -72,7 +71,6 @@ public class Database {
         try {
             Statement stmt = this.conn.createStatement();
             stmt.executeQuery("COMMIT");
-            stmt.executeQuery("SET autocommit = 1");
         } catch (SQLException e) {
             System.out.println("Could not start transaction...");
             e.printStackTrace();
@@ -130,7 +128,8 @@ public class Database {
         for (String sqlScript : sqlDelimited) {
             String possibleDelimiter = sqlScript.split(" ")[0].toUpperCase();
             if (!possibleDelimiter.equals("SET") && !possibleDelimiter.equals("CREATE") &&
-                    !possibleDelimiter.equals("USE") && !possibleDelimiter.equals("COMMIT")) {
+                    !possibleDelimiter.equals("USE") && !possibleDelimiter.equals("COMMIT")
+                    && !possibleDelimiter.equals("START")) {
                 delimiter = possibleDelimiter.trim();
                 System.out.println("Changed delimiter to: " + delimiter);
                 ArrayList<String> regexArray = new ArrayList<>();

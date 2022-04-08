@@ -23,8 +23,8 @@ public class Main {
             return;
         }
 
-        // syncSignups(db, signups);
-        // insertTestData(db);
+        syncSignups(db, signups);
+        insertTestData(db);
     }
 
     /**

@@ -1,4 +1,3 @@
-SET autocommit = 0;
 START TRANSACTION;
 
 CREATE DATABASE IF NOT EXISTS tidsmaskinen;
@@ -91,12 +90,14 @@ BEGIN
 END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS AddMaleUser;
 DELIMITER //
 CREATE PROCEDURE AddMaleUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date)
 BEGIN
     INSERT user(email, firstname, lastname, address, birthdate, gender)
         VALUES (iemail,ifirstname,ilastname,iaddress,ibirthdate,TRUE);
 END //
+DROP PROCEDURE IF EXISTS AddFemaleUser;
 DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE AddFemaleUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date)
@@ -106,6 +107,7 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS AddUser;
 DELIMITER //
 CREATE PROCEDURE AddUser(IN iemail varchar(254),IN ifirstname varchar(255), IN ilastname varchar(255), IN iaddress varchar(255), IN ibirthdate date, IN igender boolean)
 BEGIN
@@ -113,7 +115,6 @@ BEGIN
         VALUES (iemail,ifirstname,ilastname,iaddress,ibirthdate,igender);
 END //
 DELIMITER ;
-
 
 DELIMITER ;
 CREATE VIEW IF NOT EXISTS results AS
@@ -135,4 +136,3 @@ WHERE
 ORDER BY contender.time;
 
 COMMIT;
-SET autocommit = 1;
